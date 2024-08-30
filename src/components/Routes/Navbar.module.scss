@@ -1,0 +1,18 @@
+.navbar {
+    background-color: #333;
+    padding: 1rem;
+  }
+  
+  .navItem {
+    display: inline;
+    margin-right: 1rem;
+  
+    a {
+      color: white;
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
