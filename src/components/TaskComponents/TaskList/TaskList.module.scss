@@ -1,0 +1,15 @@
+.container{
+    display: flex;
+    justify-content: center;
+    padding: 0px 10px;
+}
+
+.danger{
+    background-color: #d31111 !important;
+    color: #ffffff !important;
+
+    &:hover{
+        background-color: #df1c1c !important;
+        color: #ffffff !important;
+    }
+}
