@@ -138,13 +138,27 @@ const TaskList = (props: TaskListProps) => {
     };
 
     return (
-        <div className={styles.container}>
-            {listLoading ? (
-                <InfinitySpin width="200" color="#000000" />
-            ) : (
-                renderTable()
-            )}
-        </div>
+        <Fragment>
+            <Row className={styles.headerBtn}>
+                <Col md={1}>
+                    <Button
+                        color="primary"
+                        onClick={()=>{
+                            console.log("first")
+                        }}
+                    >
+                            Add Task
+                    </Button>
+                </Col>
+            </Row>
+            <div className={styles.container}>
+                {listLoading ? (
+                    <InfinitySpin width="200" color="#000000" />
+                ) : (
+                    renderTable()
+                )}
+            </div>
+        </Fragment>
     );
 };
 
