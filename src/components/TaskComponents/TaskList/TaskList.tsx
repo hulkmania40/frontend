@@ -26,6 +26,7 @@ import {
 import { InfinitySpin } from "react-loader-spinner";
 import styles from "./TaskList.module.scss";
 import TaskView from "../TaskView/TaskView";
+import { useNavigate } from "react-router-dom";
 
 interface TaskListProps { }
 
@@ -35,6 +36,8 @@ const TaskList = (props: TaskListProps) => {
     const [selectedTaskId, setSelectedTaskId] = useState<number>(0);
 
     const [viewModalToggle, setViewModalToggle] = useState<boolean>(false)
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         setListLoading(true);
@@ -138,13 +141,13 @@ const TaskList = (props: TaskListProps) => {
     };
 
     return (
-        <Fragment>
+        <Container fluid>
             <Row className={styles.headerBtn}>
                 <Col md={1}>
                     <Button
                         color="primary"
                         onClick={()=>{
-                            console.log("first")
+                            navigate('/add')
                         }}
                     >
                             Add Task
@@ -158,7 +161,7 @@ const TaskList = (props: TaskListProps) => {
                     renderTable()
                 )}
             </div>
-        </Fragment>
+        </Container>
     );
 };
 

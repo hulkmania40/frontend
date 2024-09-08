@@ -1,7 +1,7 @@
-// src/Router.tsx
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import TaskList from '../TaskComponents/TaskList/TaskList';
+import TaskForm from '../TaskComponents/TaskForm/TaskForm';
 // import TaskDetails from './components/TaskDetails';
 // import KanbanBoard from './components/KanbanBoard';
 // import TaskCalendar from './components/TaskCalendar';
@@ -13,6 +13,7 @@ const AppRouter: React.FC = () => {
   return (
       <Routes>
         <Route path="/" element={<TaskList />} />
+        <Route path="/add" element={<TaskForm />} />
         {/* <Route path="/task/:id" element={<TaskDetails />} />
         <Route path="/kanban" element={<KanbanBoard />} />
         <Route path="/calendar" element={<TaskCalendar />} />
