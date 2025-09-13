@@ -1,10 +1,10 @@
 import axios, { type AxiosRequestConfig } from "axios";
 
-const API_BASE_URL = "http://localhost:8000"; // change to your backend url
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: VITE_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
