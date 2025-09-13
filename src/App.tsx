@@ -3,7 +3,7 @@ import LoginPage from "./pages/LoginPage"
 import Dashboard from "./pages/Dashboard"
 import Layout from "./components/Layout"
 import { SidebarProvider } from "./components/ui/sidebar"
-import Inventory from "./pages/Inventory"
+import Inventory from "./pages/Inventory/Inventory"
 import Invoice from "./pages/Invoice"
 import Admin from "./pages/Admin"
 
