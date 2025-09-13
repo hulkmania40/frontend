@@ -31,7 +31,6 @@ import {
 import { Plus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 
-// ✅ Zod schema
 const formSchema = z.object({
   name: z.string().min(1, "Item name is required"),
   quantity: z.string().min(1, "Quantity is required"),
@@ -67,7 +66,7 @@ const InventoryForm = () => {
   return (
     <Dialog
         onOpenChange={(open) => {
-        if (open === false) reset(); // reset when closed
+        if (open === false) reset();
   }}
     >
       <DialogTrigger asChild>
@@ -81,7 +80,6 @@ const InventoryForm = () => {
           <DialogTitle>Add Item</DialogTitle>
         </DialogHeader>
         <Separator className="mb-2" />
-        {/* ✅ Form starts here */}
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
           {/* Item Name */}
           <div className="grid gap-3">
