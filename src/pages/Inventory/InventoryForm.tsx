@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Input,
@@ -27,8 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Plus } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
 import { _get, _post } from "@/utils/apiClient"
 import type { InventoryItem } from "./Inventory"
 
@@ -52,7 +49,6 @@ interface InventoryFormProp {
 }
 
 const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen }: InventoryFormProp & { setIsModalOpen: (o: boolean) => void }) => {
-  console.log(itemId)
 
   const {
     register,
@@ -66,7 +62,6 @@ const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen
   })
 
   useEffect(() => {
-    console.log(itemId)
     if (itemId!=null) fetchItemById(itemId)
   }, [itemId])
 
