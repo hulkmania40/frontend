@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -31,9 +29,11 @@ import {
 } from "@/components/ui/select"
 import { Plus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
-import { _post } from "@/utils/apiClient"
+import { _get, _post } from "@/utils/apiClient"
+import type { InventoryItem } from "./Inventory"
 
 const formSchema = z.object({
+  id: z.number,
   name: z.string().min(1, "Item name is required"),
   quantity: z.string().min(1, "Quantity is required"),
   price: z
@@ -47,10 +47,12 @@ type FormData = z.infer<typeof formSchema>
 
 interface InventoryFormProp {
   fetchItems: () => Promise<void>;
+  isModalOpen?: boolean;
+  itemId?: number | null;
 }
 
-const InventoryForm = (prop: InventoryFormProp) => {
-  const [open, setOpen] = useState(false)
+const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen }: InventoryFormProp & { setIsModalOpen: (o: boolean) => void }) => {
+  console.log(itemId)
 
   const {
     register,
@@ -60,43 +62,36 @@ const InventoryForm = (prop: InventoryFormProp) => {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      quantity: "",
-      price: "",
-    },
+    defaultValues: { name: "", quantity: "", price: "" },
   })
 
-  const { fetchItems } = prop;
+  useEffect(() => {
+    console.log(itemId)
+    if (itemId!=null) fetchItemById(itemId)
+  }, [itemId])
+
+  const fetchItemById = async (id: number) => {
+    const data: InventoryItem = await _get(`/items/${id}`)
+    reset({
+      name: data.name,
+      quantity: String(data.quantity),
+      price: String(data.price),
+    })
+  }
 
   const onSubmit = async (data: FormData) => {
-    try {
-      const res = await _post("/items", data)
-      console.log("✅ Form Submitted:", res)
-      await fetchItems()
-      reset()
-      setOpen(false)   // ✅ close dialog after success
-    } catch (err) {
-      console.error("❌ Error submitting form:", err)
-    }
+    await _post("/items", data)
+    await fetchItems()
+    reset()
+    setIsModalOpen(false) // close modal from parent
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => {
-      if (!o) reset()
-      setOpen(o)
-    }}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <Plus className="mr-1" /> Add Item
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Item</DialogTitle>
+          <DialogTitle>{itemId ? "Edit Item" : "Add Item"}</DialogTitle>
         </DialogHeader>
-        <Separator className="mb-2" />
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
           {/* Item Name */}
           <div className="grid gap-3">
