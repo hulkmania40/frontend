@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/select"
 import { Plus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { _post } from "@/utils/apiClient"
 
 const formSchema = z.object({
   name: z.string().min(1, "Item name is required"),
@@ -43,7 +45,13 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
-const InventoryForm = () => {
+interface InventoryFormProp {
+  fetchItems: () => Promise<void>;
+}
+
+const InventoryForm = (prop: InventoryFormProp) => {
+  const [open, setOpen] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -59,16 +67,25 @@ const InventoryForm = () => {
     },
   })
 
-  const onSubmit = (data: FormData) => {
-    console.log("✅ Form Submitted:", data)
+  const { fetchItems } = prop;
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const res = await _post("/items", data)
+      console.log("✅ Form Submitted:", res)
+      await fetchItems()
+      reset()
+      setOpen(false)   // ✅ close dialog after success
+    } catch (err) {
+      console.error("❌ Error submitting form:", err)
+    }
   }
 
   return (
-    <Dialog
-        onOpenChange={(open) => {
-        if (open === false) reset();
-  }}
-    >
+    <Dialog open={open} onOpenChange={(o) => {
+      if (!o) reset()
+      setOpen(o)
+    }}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <Plus className="mr-1" /> Add Item

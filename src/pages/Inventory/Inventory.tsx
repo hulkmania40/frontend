@@ -59,7 +59,7 @@ const Inventory: React.FC = () => {
         <Card className="rounded-none border-none">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Inventory List</CardTitle>
-            <InventoryForm />
+            <InventoryForm fetchItems={fetchItems}/>
           </CardHeader>
           <Separator />
           {loading ? (
