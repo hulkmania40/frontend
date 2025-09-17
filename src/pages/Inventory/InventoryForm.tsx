@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select"
 import { _get, _post } from "@/utils/apiClient"
 import type { InventoryItem } from "./Inventory"
+import Loader from "@/components/custom/Loader"
 
 const formSchema = z.object({
   id: z.number(),
@@ -59,11 +60,16 @@ const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { id:-1, name: "", quantity: "", price: "" },
+    defaultValues: { id: -1, name: "", quantity: "", price: "" },
   })
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
-    if (itemId!=null) fetchItemById(itemId)
+    if (itemId != null) {
+      setLoading(true)
+      fetchItemById(itemId)
+    }
   }, [itemId])
 
   const fetchItemById = async (id: number) => {
@@ -73,6 +79,7 @@ const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen
       quantity: String(data.quantity),
       price: String(data.price),
     })
+    setLoading(false)
   }
 
   const onSubmit = async (data: FormData) => {
@@ -88,56 +95,69 @@ const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen
         <DialogHeader>
           <DialogTitle>{itemId ? "Edit Item" : "Add Item"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-          {/* Item Name */}
-          <div className="grid gap-3">
-            <Label htmlFor="item-name-1">Item Name</Label>
-            <Input id="item-name-1" {...register("name")} />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
 
-          {/* Quantity */}
-          <div className="grid gap-3">
-            <Label htmlFor="quantity-1">Quantity</Label>
-            <Select
-              value={watch("quantity")}
-              onValueChange={(val) => setValue("quantity", val, { shouldValidate: true })}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select quantity" />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 10 }).map((_, idx) => (
-                  <SelectItem key={idx} value={`${idx + 1}`}>
-                    {idx + 1}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.quantity && (
-              <p className="text-sm text-red-500">{errors.quantity.message}</p>
-            )}
-          </div>
+        {/* Form + loader wrapper */}
+        <div className="relative">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-50">
+              <Loader fullscreen/>
+            </div>
+          )}
 
-          {/* Price */}
-          <div className="grid gap-3">
-            <Label htmlFor="price-1">Price</Label>
-            <Input id="price-1" type="number" {...register("price")} />
-            {errors.price && (
-              <p className="text-sm text-red-500">{errors.price.message}</p>
-            )}
-          </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+            {/* Item Name */}
+            <div className="grid gap-3">
+              <Label htmlFor="item-name-1">Item Name</Label>
+              <Input id="item-name-1" {...register("name")} />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
+            </div>
 
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save changes</Button>
-          </DialogFooter>
-        </form>
+            {/* Quantity */}
+            <div className="grid gap-3">
+              <Label htmlFor="quantity-1">Quantity</Label>
+              <Select
+                value={watch("quantity")}
+                onValueChange={(val) =>
+                  setValue("quantity", val, { shouldValidate: true })
+                }
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select quantity" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 10 }).map((_, idx) => (
+                    <SelectItem key={idx} value={`${idx + 1}`}>
+                      {idx + 1}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.quantity && (
+                <p className="text-sm text-red-500">{errors.quantity.message}</p>
+              )}
+            </div>
+
+            {/* Price */}
+            <div className="grid gap-3">
+              <Label htmlFor="price-1">Price</Label>
+              <Input id="price-1" type="number" {...register("price")} />
+              {errors.price && (
+                <p className="text-sm text-red-500">{errors.price.message}</p>
+              )}
+            </div>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </form>
+        </div>
       </DialogContent>
+
     </Dialog>
   )
 }
