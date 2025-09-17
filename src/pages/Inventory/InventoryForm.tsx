@@ -54,6 +54,7 @@ const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm<FormData>({
@@ -101,6 +102,7 @@ const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen
           <div className="grid gap-3">
             <Label htmlFor="quantity-1">Quantity</Label>
             <Select
+              value={watch("quantity")}
               onValueChange={(val) => setValue("quantity", val, { shouldValidate: true })}
             >
               <SelectTrigger className="w-[180px]">
