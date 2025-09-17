@@ -32,37 +32,38 @@ import type { InventoryItem } from "./Inventory"
 
 const formSchema = z.object({
   name: z.string().min(1, "Item name is required"),
-  quantity: z.string().min(1, "Quantity is required"),
-  price: z
-    .string()
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "Price must be a positive number",
-    }),
+  quantity: z.coerce.number().min(1, "Quantity is required"),
+  price: z.coerce.number().min(0.01, "Price must be positive"),
 })
 
 type FormData = z.infer<typeof formSchema>
 
-interface InventoryFormProps {
-  fetchItems: () => Promise<void>
-  isModalOpen: boolean
-  setIsModalOpen: (open: boolean) => void
-  itemId?: number | null
+interface FormInput {
+  name: string
+  quantity: string
+  price: string
+}
+
+interface InventoryFormProps { 
+  fetchItems: () => Promise<void>;
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+  itemId?: number | null;
 }
 
 const InventoryForm = ({ fetchItems, isModalOpen, setIsModalOpen, itemId }: InventoryFormProps) => {
   const [loading, setLoading] = useState(false)
   const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { name: "", quantity: "", price: "" },
-  })
-
+  register,
+  handleSubmit,
+  setValue,
+  watch,
+  reset,
+  formState: { errors },
+} = useForm<FormInput>({
+  resolver: zodResolver(formSchema as any), // TypeScript workaround
+  defaultValues: { name: "", quantity: "", price: "" },
+})
   // Fetch item data when editing
   useEffect(() => {
     if (itemId != null) {
@@ -76,29 +77,34 @@ const InventoryForm = ({ fetchItems, isModalOpen, setIsModalOpen, itemId }: Inve
         setLoading(false)
       })
     } else {
-      reset()
+      reset({ name: "", quantity: undefined, price: undefined })
     }
   }, [itemId, reset])
 
   useEffect(() => {
     if (isModalOpen && itemId == null) {
-      // Opened for Add → reset form
-      reset({ name: "", quantity: "", price: "" })
+      reset({ name: "", quantity: undefined, price: undefined })
     }
   }, [isModalOpen, itemId, reset])
 
-
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: FormInput) => {
     setLoading(true)
     try {
-      if (itemId != null) {
-        await _put(`/items/${itemId}`, data)
-      } else {
-        await _post("/items", data)
+      const payload: FormData = {
+        name: data.name,
+        quantity: Number(data.quantity),
+        price: Number(data.price),
       }
+
+      if (itemId != null) {
+        await _put(`/items/${itemId}`, payload)
+      } else {
+        await _post("/items", payload)
+      }
+
       await fetchItems()
       setIsModalOpen(false)
-      reset()
+      reset({ name: "", quantity: undefined, price: undefined })
     } finally {
       setLoading(false)
     }
@@ -130,7 +136,7 @@ const InventoryForm = ({ fetchItems, isModalOpen, setIsModalOpen, itemId }: Inve
             <div className="grid gap-2">
               <Label htmlFor="quantity">Quantity</Label>
               <Select
-                value={watch("quantity")}
+                value={watch("quantity") ? String(watch("quantity")) : ""}
                 onValueChange={(val) => setValue("quantity", val, { shouldValidate: true })}
               >
                 <SelectTrigger className="w-[180px]">
@@ -150,7 +156,12 @@ const InventoryForm = ({ fetchItems, isModalOpen, setIsModalOpen, itemId }: Inve
             {/* Price */}
             <div className="grid gap-2">
               <Label htmlFor="price">Price</Label>
-              <Input id="price" type="number" {...register("price")} />
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                {...register("price")}
+              />
               {errors.price && <p className="text-sm text-red-500">{errors.price.message}</p>}
             </div>
 
@@ -166,5 +177,6 @@ const InventoryForm = ({ fetchItems, isModalOpen, setIsModalOpen, itemId }: Inve
     </Dialog>
   )
 }
+
 
 export default InventoryForm
