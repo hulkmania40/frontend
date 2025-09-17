@@ -30,7 +30,7 @@ import { _get, _post } from "@/utils/apiClient"
 import type { InventoryItem } from "./Inventory"
 
 const formSchema = z.object({
-  id: z.number,
+  id: z.number(),
   name: z.string().min(1, "Item name is required"),
   quantity: z.string().min(1, "Quantity is required"),
   price: z
@@ -58,7 +58,7 @@ const InventoryForm = ({ fetchItems, isModalOpen = false, itemId, setIsModalOpen
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", quantity: "", price: "" },
+    defaultValues: { id:-1, name: "", quantity: "", price: "" },
   })
 
   useEffect(() => {
