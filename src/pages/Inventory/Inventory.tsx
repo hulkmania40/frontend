@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import InventoryForm from "./InventoryForm"
-import { _get } from "@/utils/apiClient"
+import { _delete, _get } from "@/utils/apiClient"
 
 export interface InventoryItem {
   id: number
@@ -34,9 +34,10 @@ const Inventory: React.FC = () => {
     setLoading(false)
   }
 
-  const deleteItem = (id: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== id))
-    // Optionally call delete API here
+  const deleteItem = async (id: number) => {
+    const data = await _delete(`/items/${id}`)
+    console.log(data)
+    await fetchItems()
   }
 
   // Skeleton row for loading
