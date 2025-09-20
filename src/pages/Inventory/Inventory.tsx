@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import InventoryForm from "./InventoryForm"
 import { _delete, _get } from "@/utils/apiClient"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+// @ts-ignore
+import { debounce } from "lodash";
 
 export interface InventoryItem {
   id: number
@@ -24,16 +26,33 @@ const Inventory: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [itemId, setItemId] = useState<number | null>(null)
 
-  useEffect(() => {
-    fetchItems()
-  }, [])
-
-  const fetchItems = async () => {
+  const fetchItems = async (query: string = "") => {
     setLoading(true)
-    const data: InventoryItem[] = await _get("items/")
-    setItems(data)
+    if (query === "") {
+      const data: InventoryItem[] = await _get("items/")
+      setItems(data)
+    } else {
+      const data: InventoryItem[] = await _get(`items/?query=${query}`)
+      setItems(data)
+    }
     setLoading(false)
   }
+
+  useEffect(() => {
+    const debouncedFetch = debounce((q: string) => {
+      fetchItems(q)
+    }, 700)
+
+    if (searchInput.length > 0) {
+      debouncedFetch(searchInput)
+    } else {
+      debouncedFetch("")
+    }
+
+    return () => {
+      debouncedFetch.cancel()
+    }
+  }, [searchInput])
 
   const deleteItem = async (id: number) => {
     const data = await _delete(`/items/${id}`)
@@ -60,8 +79,8 @@ const Inventory: React.FC = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={async ()=>{
+          <AlertDialogAction
+            onClick={async () => {
               deleteItem(itemId);
             }}
           >
@@ -88,11 +107,6 @@ const Inventory: React.FC = () => {
         <Skeleton className="h-8 w-8 rounded-md ml-auto" />
       </TableCell>
     </TableRow>
-  )
-
-  // Filtered items based on search
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(searchInput.toLowerCase())
   )
 
   return (
@@ -155,7 +169,7 @@ const Inventory: React.FC = () => {
             </CardContent>
           ) : (
             <CardContent className="px-2">
-              {filteredItems.length === 0 ? (
+              {items.length === 0 ? (
                 <p className="text-muted-foreground">No items found.</p>
               ) : (
                 <Table>
@@ -168,7 +182,7 @@ const Inventory: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredItems.map((item) => (
+                    {items.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="w-1/4 font-medium">{item.name}</TableCell>
                         <TableCell className="w-1/4">{item.quantity}</TableCell>
