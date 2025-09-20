@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import InventoryForm from "./InventoryForm"
 import { _delete, _get } from "@/utils/apiClient"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 export interface InventoryItem {
   id: number
@@ -38,6 +39,37 @@ const Inventory: React.FC = () => {
     const data = await _delete(`/items/${id}`)
     console.log(data)
     await fetchItems()
+  }
+
+  const AlertBoxComponent = (itemId: number, itemName: string) => {
+    return <AlertDialog>
+      <AlertDialogTrigger>
+        <Button
+          variant="destructive"
+          size="icon"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure you want to delete {itemName}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={async ()=>{
+              deleteItem(itemId);
+            }}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   }
 
   // Skeleton row for loading
@@ -153,13 +185,9 @@ const Inventory: React.FC = () => {
                           >
                             <Pen className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => deleteItem(item.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {
+                            AlertBoxComponent(item.id, item.name)
+                          }
                         </TableCell>
                       </TableRow>
                     ))}
