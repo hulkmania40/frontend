@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import InventoryForm from "./InventoryForm"
 import { _delete, _get } from "@/utils/apiClient"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import Loader from "@/components/custom/Loader"
+
 // @ts-ignore
 import { debounce } from "lodash";
 
@@ -21,10 +23,11 @@ export interface InventoryItem {
 
 const Inventory: React.FC = () => {
   const [items, setItems] = useState<InventoryItem[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true)
   const [searchInput, setSearchInput] = useState<string>("")
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [itemId, setItemId] = useState<number | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
   const fetchItems = async (query: string = "") => {
     setLoading(true)
@@ -71,22 +74,26 @@ const Inventory: React.FC = () => {
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to delete {itemName}?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={async () => {
-              deleteItem(itemId);
-            }}
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
+        {deleteLoading ? <Loader fullscreen /> :
+          <Fragment>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure you want to delete {itemName}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  setDeleteLoading(true)
+                  deleteItem(itemId);
+                }}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </Fragment>}
       </AlertDialogContent>
     </AlertDialog>
   }
