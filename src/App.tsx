@@ -4,8 +4,9 @@ import Dashboard from "./pages/Dashboard"
 import Layout from "./components/Layout"
 import { SidebarProvider } from "./components/ui/sidebar"
 import Inventory from "./pages/Inventory/Inventory"
-import Invoice from "./pages/Invoice"
 import Admin from "./pages/Admin"
+import InvoiceList from "./pages/Invoice/InvoiceList"
+import InvoiceForm from "./pages/Invoice/InvoiceForm"
 
 export default function App() {
   return (
@@ -18,7 +19,8 @@ export default function App() {
         <Route element={<SidebarProvider><Layout /></SidebarProvider>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
-          <Route path="/invoice" element={<Invoice />} />
+          <Route path="/invoice" element={<InvoiceList />} />
+          <Route path="/invoice/new" element={<InvoiceForm />} />
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>

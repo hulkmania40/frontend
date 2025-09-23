@@ -1,93 +1,75 @@
 import { Outlet, useNavigate } from "react-router"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { Home, ClipboardList, Shield } from "lucide-react"
+import { Menu, Home, ClipboardList, Shield } from "lucide-react"
 import { CustomNavigationMenu } from "./CustomNavigationMenu"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+
+const MobileNavLinks = ({ navigate }: { navigate: (path: string) => void }) => (
+  <div className="flex flex-col space-y-4 p-4">
+    <Button
+      variant="ghost"
+      className="justify-start"
+      onClick={() => navigate("/dashboard")}
+    >
+      <Home className="mr-2 h-4 w-4" />
+      Dashboard
+    </Button>
+    <Button
+      variant="ghost"
+      className="justify-start"
+      onClick={() => navigate("/inventory")}
+    >
+      <ClipboardList className="mr-2 h-4 w-4" />
+      Inventory
+    </Button>
+    <Button
+      variant="ghost"
+      className="justify-start"
+      onClick={() => navigate("/admin")}
+    >
+      <Shield className="mr-2 h-4 w-4" />
+      Admin
+    </Button>
+  </div>
+)
 
 export default function Layout() {
-
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
-    <div className="grid grid-cols-[1fr_2fr_6fr_2fr_1fr] h-screen">
-      {/* Left Sidebar */}
-      <Sidebar>
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
-            <SidebarMenu>
-              <SidebarMenuItem
-                onClick={()=>{
-                  navigate("/dashboard")
-                }}
-              >
-                <SidebarMenuButton
-                  className="cursor-pointer"
-                >
-                  <Home className="mr-2 h-4 w-4" />
-                  Dashboard
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem
-                onClick={()=>{
-                  navigate("/inventory")
-                }}
-              >
-                <SidebarMenuButton
-                  className="cursor-pointer"
-                >
-                  <ClipboardList className="mr-2 h-4 w-4" />
-                  Inventory
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem
-                onClick={()=>{
-                  navigate("/admin")
-                }}
-              >
-                <SidebarMenuButton
-                  className="cursor-pointer"
-                >
-                  <Shield className="mr-2 h-4 w-4" />
-                  Admin
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
+    <div className="flex flex-col h-screen">
+      {/* Top Navigation */}
+      <div className="w-full flex justify-between items-center px-4 py-2 border-b">
+        {/* Mobile Menu Trigger */}
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-64">
+              <MobileNavLinks navigate={navigate} />
+            </SheetContent>
+          </Sheet>
+        </div>
 
-      {/* Empty spacer column (left balance) */}
-      <div />
-      
-      {/* Center content (nav + page) */}
-      <div className="flex flex-col items-center justify-start border-x">
-        {/* Top Navigation */}
-        <div className="w-full flex justify-between items-center my-2 p-4">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex flex-1 justify-center">
           <CustomNavigationMenu />
         </div>
-        <Separator />
-        {/* Main routed content */}
-        <main className="flex w-full overflow-y-auto">
-          <div className="w-full">
-            <Outlet />
-          </div>
-        </main>
       </div>
 
-      {/* Empty spacer column (right balance) */}
-      <div />
-      
-      {/* Right column (empty for now) */}
-      <div />
+      <Separator />
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto px-4">
+        {/* Centered container */}
+        <div className="w-full max-w-5xl mx-auto py-6">
+          <Outlet />
+        </div>
+      </main>
     </div>
   )
 }
