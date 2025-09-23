@@ -17,7 +17,6 @@ import InventoryForm from "./InventoryForm";
 import { _delete, _get } from "@/utils/apiClient";
 import {
 	AlertDialog,
-	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
@@ -57,6 +56,7 @@ const Inventory: React.FC = () => {
 			setItems(data);
 		}
 		setLoading(false);
+		setDeleteLoading(false);
 	};
 
 	useEffect(() => {
@@ -79,7 +79,6 @@ const Inventory: React.FC = () => {
 		const data = await _delete(`/items/${id}`);
 		console.log(data);
 		await fetchItems();
-		setDeleteLoading(false);
 	};
 
 	const AlertBoxComponent = (itemId: number, itemName: string) => {
@@ -96,46 +95,40 @@ const Inventory: React.FC = () => {
 					</Button>
 				</AlertDialogTrigger>
 				<AlertDialogContent>
-					{deleteLoading && openDialogId === itemId ? (
+					{deleteLoading && openDialogId === itemId && (
 						<Loader fullscreen />
-					) : (
-						<Fragment>
-							<AlertDialogHeader>
-								<AlertDialogTitle>
-									Are you sure you want to delete {itemName}?
-								</AlertDialogTitle>
-								<AlertDialogDescription>
-									This action cannot be undone.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel
-									onClick={() => setOpenDialogId(null)}
-								>
-									Cancel
-								</AlertDialogCancel>
-								<AlertDialogAction
-									onClick={async () => {
-										setDeleteLoading(true);
-										try {
-											await deleteItem(itemId);
-											setOpenDialogId(null); // ✅ close only after success
-										} catch (err) {
-											console.error(
-												"Delete failed:",
-												err
-											);
-											// Optionally show a toast/error message here
-										} finally {
-											setDeleteLoading(false);
-										}
-									}}
-								>
-									Delete
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</Fragment>
 					)}
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							Are you sure you want to delete {itemName}?
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action cannot be undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel
+							onClick={() => setOpenDialogId(null)}
+						>
+							Cancel
+						</AlertDialogCancel>
+						<Button
+							variant="destructive"
+							onClick={async () => {
+								setDeleteLoading(true);
+								try {
+									await deleteItem(itemId);
+									setOpenDialogId(null); // ✅ close only after success
+								} catch (err) {
+									console.error("Delete failed:", err);
+									setDeleteLoading(false)
+									// Optionally show a toast/error message here
+								}
+							}}
+						>
+							Delete
+						</Button>
+					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
 		);
