@@ -2,11 +2,10 @@ import React, { Fragment, useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Pen, Trash2 } from "lucide-react"
+import { Pen } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
-import Loader from "@/components/custom/Loader"
 
 // @ts-ignore
 import { debounce } from "lodash";
@@ -27,39 +26,39 @@ const InvoiceList: React.FC = () => {
 
   const navigate = useNavigate();
 
-//   const fetchItems = async (query: string = "") => {
-//     setLoading(true)
-//     if (query === "") {
-//       const data: InventoryItem[] = await _get("items/")
-//       setItems(data)
-//     } else {
-//       const data: InventoryItem[] = await _get(`items/?query=${query}`)
-//       setItems(data)
-//     }
-//     setLoading(false)
-//   }
+  const fetchItems = async (query: string = "") => {
+    setLoading(true)
+    if (query === "") {
+      const data: InventoryItem[] = await _get("items/")
+      setItems(data)
+    } else {
+      const data: InventoryItem[] = await _get(`items/?query=${query}`)
+      setItems(data)
+    }
+    setLoading(false)
+  }
 
-//   useEffect(() => {
-//     const debouncedFetch = debounce((q: string) => {
-//       fetchItems(q)
-//     }, 700)
+  useEffect(() => {
+    const debouncedFetch = debounce((q: string) => {
+      fetchItems(q)
+    }, 700)
 
-//     if (searchInput.length > 0) {
-//       debouncedFetch(searchInput)
-//     } else {
-//       debouncedFetch("")
-//     }
+    if (searchInput.length > 0) {
+      debouncedFetch(searchInput)
+    } else {
+      debouncedFetch("")
+    }
 
-//     return () => {
-//       debouncedFetch.cancel()
-//     }
-//   }, [searchInput])
+    return () => {
+      debouncedFetch.cancel()
+    }
+  }, [searchInput])
 
-//   const deleteItem = async (id: number) => {
-//     const data = await _delete(`/items/${id}`)
-//     console.log(data)
-//     await fetchItems()
-//   }
+  // const deleteItem = async (id: number) => {
+  //   const data = await _delete(`/items/${id}`)
+  //   console.log(data)
+  //   await fetchItems()
+  // }
 
   // Skeleton row for loading
   const SkeletonRow = () => (

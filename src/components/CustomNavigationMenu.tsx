@@ -1,13 +1,10 @@
 import { Link } from "react-router";
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
 
 import {
 	NavigationMenu,
-	NavigationMenuContent,
 	NavigationMenuItem,
 	NavigationMenuLink,
 	NavigationMenuList,
-	NavigationMenuTrigger,
 	navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
