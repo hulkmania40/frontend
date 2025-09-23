@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from "react-router"
 import LoginPage from "./pages/LoginPage"
 import Dashboard from "./pages/Dashboard"
 import Layout from "./components/Layout"
-import { SidebarProvider } from "./components/ui/sidebar"
 import Inventory from "./pages/Inventory/Inventory"
 import Admin from "./pages/Admin"
 import InvoiceList from "./pages/Invoice/InvoiceList"
@@ -16,7 +15,7 @@ export default function App() {
         <Route path="/" element={<LoginPage />} />
 
         {/* All other pages WITH layout */}
-        <Route element={<SidebarProvider><Layout /></SidebarProvider>}>
+        <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/invoice" element={<InvoiceList />} />
