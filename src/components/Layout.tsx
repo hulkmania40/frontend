@@ -7,7 +7,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Home, ClipboardList, Shield } from "lucide-react"
 import { CustomNavigationMenu } from "./CustomNavigationMenu"
@@ -52,7 +51,6 @@ export default function Layout() {
       <div className="flex flex-col items-center justify-start border-x">
         {/* Top Navigation */}
         <div className="w-full flex justify-between items-center my-2 p-4">
-          <SidebarTrigger />
           <CustomNavigationMenu />
         </div>
         <Separator />
