@@ -45,6 +45,7 @@ const Inventory: React.FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [itemId, setItemId] = useState<number | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+	const [openDialogId, setOpenDialogId] = useState<number | null>(null);
 
 	const fetchItems = async (query: string = "") => {
 		setLoading(true);
@@ -83,14 +84,19 @@ const Inventory: React.FC = () => {
 
 	const AlertBoxComponent = (itemId: number, itemName: string) => {
 		return (
-			<AlertDialog>
+			<AlertDialog
+				open={openDialogId === itemId}
+				onOpenChange={(isOpen) =>
+					setOpenDialogId(isOpen ? itemId : null)
+				}
+			>
 				<AlertDialogTrigger asChild>
 					<Button variant="destructive" size="icon">
 						<Trash2 className="h-4 w-4" />
 					</Button>
 				</AlertDialogTrigger>
 				<AlertDialogContent>
-					{deleteLoading ? (
+					{deleteLoading && openDialogId === itemId ? (
 						<Loader fullscreen />
 					) : (
 						<Fragment>
@@ -99,15 +105,30 @@ const Inventory: React.FC = () => {
 									Are you sure you want to delete {itemName}?
 								</AlertDialogTitle>
 								<AlertDialogDescription>
-									This action cannot be undone
+									This action cannot be undone.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
-								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogCancel
+									onClick={() => setOpenDialogId(null)}
+								>
+									Cancel
+								</AlertDialogCancel>
 								<AlertDialogAction
 									onClick={async () => {
 										setDeleteLoading(true);
-										await deleteItem(itemId);
+										try {
+											await deleteItem(itemId);
+											setOpenDialogId(null); // ✅ close only after success
+										} catch (err) {
+											console.error(
+												"Delete failed:",
+												err
+											);
+											// Optionally show a toast/error message here
+										} finally {
+											setDeleteLoading(false);
+										}
 									}}
 								>
 									Delete
