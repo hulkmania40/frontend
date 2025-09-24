@@ -187,7 +187,7 @@ const Inventory: React.FC = () => {
 							placeholder="Search for an item"
 							value={searchInput}
 							onChange={(e) => setSearchInput(e.target.value)}
-							className="w-full sm:w-1/2"
+							className="flex-1 w-full sm:w-1/2"
 						/>
 						<Button
 							variant="outline"

@@ -23,6 +23,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { _get, _post } from "@/utils/apiClient"
+import Loader from "@/components/custom/Loader"
 
 export interface InventoryItem {
   id: number
@@ -46,6 +47,7 @@ const invoiceSchema = z.object({
 // --- Component ---
 const InvoiceForm = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([])
+  const [loading, setLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof invoiceSchema>>({
     resolver: zodResolver(invoiceSchema),
@@ -60,17 +62,26 @@ const InvoiceForm = () => {
 
   const watchItems = watch("items")
 
+  const fetchItems = async (query: string = "") => {
+      setLoading(true);
+      if (query === "") {
+        const data: InventoryItem[] = await _get("items/");
+        setInventory(data);
+      } else {
+        const data: InventoryItem[] = await _get(`items/?query=${query}`);
+        setInventory(data);
+      }
+      setLoading(false);
+    };
+
   // Fetch inventory on mount
   useEffect(() => {
-    const fetchInventory = async () => {
-      const data = await _get<InventoryItem[]>("/inventory")
-      setInventory(data)
-    }
-    fetchInventory()
+    fetchItems()
   }, [])
 
   // Handle Submit
   const onSubmit = async (values: z.infer<typeof invoiceSchema>) => {
+    console.log(values)
     await _post("/invoices", values)
     reset({ items: [] })
   }
@@ -81,6 +92,9 @@ const InvoiceForm = () => {
         <CardTitle>Create Invoice</CardTitle>
       </CardHeader>
       <CardContent>
+        {
+          loading && <Loader fullscreen />
+        }
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {fields.map((field, index) => {
