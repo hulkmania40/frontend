@@ -7,6 +7,7 @@ import {
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { ThemeToggle } from "./custom/theme/ThemeToggle";
 
 export function CustomNavigationMenu() {
 	return (
@@ -37,6 +38,7 @@ export function CustomNavigationMenu() {
 					</NavigationMenuLink>
 				</NavigationMenuItem>
 			</NavigationMenuList>
+			<ThemeToggle />
 		</NavigationMenu>
 	);
 }

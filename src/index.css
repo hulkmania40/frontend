@@ -118,3 +118,17 @@
     @apply bg-background text-foreground;
   }
 }
+/* Theme transition animations */
+@keyframes circle-in {
+  from {
+    clip-path: circle(0% at var(--circle-x, 50%) var(--circle-y, 50%));
+  }
+  to {
+    clip-path: circle(150% at var(--circle-x, 50%) var(--circle-y, 50%));
+  }
+}
+
+::view-transition-new(root) {
+  animation: circle-in 600ms;
+}
+
