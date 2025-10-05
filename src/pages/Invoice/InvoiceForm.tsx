@@ -272,6 +272,7 @@ const InvoiceForm = () => {
                     type="button"
                     variant="destructive"
                     onClick={() => remove(index)}
+                    disabled={watchItems.length===1}
                   >
                     Remove
                   </Button>
