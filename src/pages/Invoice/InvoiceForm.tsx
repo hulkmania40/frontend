@@ -199,7 +199,7 @@ const InvoiceForm = () => {
               const total = (watchItems[index]?.quantity || 0) * unitPrice
 
               return (
-                <div key={field.id} className="space-y-4 border p-4 rounded-lg">
+                <div key={field.id} className="space-y-4 border p-4 rounded-lg mb-4">
                   <FormField
                     control={control}
                     name={`items.${index}.inventoryId`}
@@ -215,7 +215,7 @@ const InvoiceForm = () => {
                               ref={field.ref}
                               className={fieldState.error ? "border-destructive focus:ring-destructive" : ""}
                             >
-                              <SelectValue placeholder="Select item" />
+                              <SelectValue placeholder="Select Item" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -227,7 +227,7 @@ const InvoiceForm = () => {
                                   )
                               )
                               .map((inv) => (
-                                <SelectItem key={inv.id} value={String(inv.id)}>
+                                <SelectItem key={inv.id} value={String(inv.id)} >
                                   {inv.name} (₹{inv.price})
                                 </SelectItem>
                               ))}
@@ -286,7 +286,15 @@ const InvoiceForm = () => {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => append({ inventoryId: 0, quantity: 1 })}
+            onClick={() => {
+              append({ inventoryId: 0, quantity: 1 })
+              setTimeout(() => {
+                window.scrollTo({
+                  top: document.body.scrollHeight,
+                  behavior: "smooth",
+                })
+              }, 200)
+            }}
             className="w-full sm:w-auto"
           >
             Add Item
