@@ -22,7 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { _get, _post, _put } from "@/utils/apiClient"
 import Loader from "@/components/custom/Loader"
 import { toast } from "sonner"
@@ -40,7 +39,8 @@ const invoiceSchema = z.object({
   items: z
     .array(
       z.object({
-        inventoryId: z.number(),
+        inventoryId: z.number({})
+          .min(1, "Item is required"),
         quantity: z.number().min(1, "Quantity must be at least 1"),
       })
     )
@@ -57,11 +57,19 @@ const InvoiceForm = () => {
 
   const form = useForm<z.infer<typeof invoiceSchema>>({
     resolver: zodResolver(invoiceSchema),
-    defaultValues: { customer_name: "", items: [] },
+    defaultValues: { customer_name: "", items: [{ "inventoryId": 0, "quantity": 0 }] },
   })
   const { control, handleSubmit, watch, reset } = form
   const { fields, append, remove } = useFieldArray({ control, name: "items" })
   const watchItems = watch("items")
+
+  // Dynamically calculate total
+  const totalAmount = watchItems.reduce((acc, curr) => {
+    const matchedItem = inventory.find((inv) => inv.id === curr.inventoryId)
+    const price = matchedItem?.price ?? 0
+    const qty = curr.quantity ?? 0
+    return acc + price * qty
+  }, 0)
 
   // fetch items for dropdown
   const fetchItems = async () => {
@@ -147,41 +155,46 @@ const InvoiceForm = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{id ? "Edit Invoice" : "Create Invoice"}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading && <Loader fullscreen />}
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={control}
-              name="customer_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter customer name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <Form {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+        <Card className="rounded-none border-t-0">
+          <CardHeader>
+            <CardTitle>{id ? "Edit Invoice" : "Create Invoice"}</CardTitle>
+          </CardHeader>
+          <CardContent className="pb-32 sm:pb-24">
+            {loading && <Loader fullscreen />}
+
+            {/* Customer name field */}
+            <div className="mb-2">
+              <FormField
+                control={control}
+                name="customer_name"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Customer Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter customer name"
+                        {...field}
+                        className={fieldState.error ? "border-destructive focus-visible:ring-destructive" : ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Items fields */}
             {fields.map((field, index) => {
               const selected = inventory.find(
                 (inv) => inv.id === watchItems[index]?.inventoryId
               )
               const stockQty = selected?.quantity ?? 0
-
-              // find how much quantity this item already had in original invoice (if editing)
               const previousQty = originalInvoiceItems.find(
                 (it) => it.item_id === watchItems[index]?.inventoryId
               )?.quantity ?? 0
-
-              // final max = available in stock + what this invoice already reserved
               const maxQty = stockQty + previousQty
-
               const unitPrice = selected?.price ?? 0
               const total = (watchItems[index]?.quantity || 0) * unitPrice
 
@@ -190,34 +203,36 @@ const InvoiceForm = () => {
                   <FormField
                     control={control}
                     name={`items.${index}.inventoryId`}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>Item</FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={(val) => field.onChange(Number(val))}
-                            value={field.value ? String(field.value) : ""}
-                          >
-                            <SelectTrigger>
+                        <Select
+                          value={field.value ? String(field.value) : ""}
+                          onValueChange={(val) => field.onChange(Number(val))}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              ref={field.ref}
+                              className={fieldState.error ? "border-destructive focus:ring-destructive" : ""}
+                            >
                               <SelectValue placeholder="Select item" />
                             </SelectTrigger>
-                            <SelectContent>
-                              {inventory
-                                .filter(
-                                  (inv) =>
-                                    !watchItems.some(
-                                      (it, i) => i !== index && it.inventoryId === inv.id
-                                    )
-                                )
-                                .map((inv) => (
-                                  <SelectItem key={inv.id} value={String(inv.id)}>
-                                    {inv.name} (₹{inv.price})
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-
-                        </FormControl>
+                          </FormControl>
+                          <SelectContent>
+                            {inventory
+                              .filter(
+                                (inv) =>
+                                  !watchItems.some(
+                                    (it, i) => i !== index && it.inventoryId === inv.id
+                                  )
+                              )
+                              .map((inv) => (
+                                <SelectItem key={inv.id} value={String(inv.id)}>
+                                  {inv.name} (₹{inv.price})
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -226,23 +241,21 @@ const InvoiceForm = () => {
                   <FormField
                     control={control}
                     name={`items.${index}.quantity`}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>
                           Quantity{" "}
                           {maxQty > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                              (Max: {maxQty})
-                            </span>
+                            <span className="text-xs text-muted-foreground">(Max: {maxQty})</span>
                           )}
                         </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
-                            min={1}
                             max={maxQty}
-                            value={field.value ?? ""}
+                            {...field}
                             onChange={(e) => field.onChange(Number(e.target.value))}
+                            className={fieldState.error ? "border-destructive focus-visible:ring-destructive" : ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -265,23 +278,30 @@ const InvoiceForm = () => {
                 </div>
               )
             })}
+          </CardContent>
+        </Card>
 
-            <Separator />
-
-            <Button
-              type="button"
-              onClick={() => append({ inventoryId: 0, quantity: 1 })}
-            >
-              Add Item
-            </Button>
-
-            <Button type="submit" className="w-full">
+        {/* ✅ Move sticky footer inside form */}
+        <div className="fixed bottom-0 left-0 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t shadow-md p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between z-50">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => append({ inventoryId: 0, quantity: 1 })}
+            className="w-full sm:w-auto"
+          >
+            Add Item
+          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full sm:w-auto gap-3 sm:gap-6">
+            <span className="text-lg font-medium text-center sm:text-left">
+              Total: ₹{totalAmount}
+            </span>
+            <Button type="submit" className="w-full sm:w-auto">
               {id ? "Update Invoice" : "Submit Invoice"}
             </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          </div>
+        </div>
+      </form>
+    </Form>
   )
 }
 
