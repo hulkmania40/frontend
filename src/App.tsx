@@ -20,6 +20,7 @@ export default function App() {
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/invoice" element={<InvoiceList />} />
           <Route path="/invoice/new" element={<InvoiceForm />} />
+          <Route path="/invoice/:id" element={<InvoiceForm />} />
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>

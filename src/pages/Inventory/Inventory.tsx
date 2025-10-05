@@ -29,6 +29,7 @@ import Loader from "@/components/custom/Loader";
 
 // @ts-ignore
 import { debounce } from "lodash";
+import { toast } from "sonner";
 
 export interface InventoryItem {
 	id: number;
@@ -48,15 +49,23 @@ const Inventory: React.FC = () => {
 
 	const fetchItems = async (query: string = "") => {
 		setLoading(true);
-		if (query === "") {
-			const data: InventoryItem[] = await _get("items/");
+		try {
+			let data: InventoryItem[];
+
+			if (query === "") {
+				data = await _get("items/");
+			} else {
+				data = await _get(`items/?query=${query}`);
+			}
+
 			setItems(data);
-		} else {
-			const data: InventoryItem[] = await _get(`items/?query=${query}`);
-			setItems(data);
+		} catch (error: any) {
+			toast.error(error?.message || "Failed to fetch Invoice Items");
+			console.error("Failed to fetch items:", error);
+		} finally {
+			setLoading(false);
+			setDeleteLoading(false);
 		}
-		setLoading(false);
-		setDeleteLoading(false);
 	};
 
 	useEffect(() => {
@@ -78,6 +87,7 @@ const Inventory: React.FC = () => {
 	const deleteItem = async (id: number) => {
 		const data = await _delete(`/items/${id}`);
 		console.log(data);
+		toast.success("Item deleted successfully")
 		await fetchItems();
 	};
 
@@ -121,7 +131,7 @@ const Inventory: React.FC = () => {
 									setOpenDialogId(null); // ✅ close only after success
 								} catch (err) {
 									console.error("Delete failed:", err);
-									setDeleteLoading(false)
+									setDeleteLoading(false);
 									// Optionally show a toast/error message here
 								}
 							}}
