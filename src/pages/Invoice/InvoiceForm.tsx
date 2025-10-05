@@ -156,13 +156,13 @@ const InvoiceForm = () => {
 
   return (
     <Form {...form}>
+      {loading && <Loader fullscreen />}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
         <Card className="rounded-none border-t-0">
           <CardHeader>
             <CardTitle>{id ? "Edit Invoice" : "Create Invoice"}</CardTitle>
           </CardHeader>
           <CardContent className="pb-32 sm:pb-24">
-            {loading && <Loader fullscreen />}
 
             {/* Customer name field */}
             <div className="mb-2">
@@ -281,8 +281,7 @@ const InvoiceForm = () => {
           </CardContent>
         </Card>
 
-        {/* ✅ Move sticky footer inside form */}
-        <div className="fixed bottom-0 left-0 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t shadow-md p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between z-50">
+        <div className="fixed bottom-0 left-0 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t shadow-md p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between">
           <Button
             type="button"
             variant="secondary"
@@ -301,7 +300,7 @@ const InvoiceForm = () => {
           </Button>
           <div className="flex flex-col sm:flex-row items-center justify-between w-full sm:w-auto gap-3 sm:gap-6">
             <span className="text-lg font-medium text-center sm:text-left">
-              Total: ₹{totalAmount}
+              Total: <span className="text-green-500">₹{totalAmount}</span>
             </span>
             <Button type="submit" className="w-full sm:w-auto">
               {id ? "Update Invoice" : "Submit Invoice"}
